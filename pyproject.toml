@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "ouster-lidar-mcp-server"
 version = "0.1.0"
@@ -8,6 +12,9 @@ dependencies = [
     "mcp[cli]>=1.7.1",
     "ouster-sdk>=0.14.0",
 ]
+
+[project.scripts]
+ouster-mcp-server = "main:main"
 
 [dependency-groups]
 dev = [

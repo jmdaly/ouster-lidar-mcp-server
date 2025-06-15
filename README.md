@@ -9,13 +9,14 @@ A Model Context Protocol (MCP) server that provides access to Ouster Lidar senso
 - Capture Lidar scans
 - Configure sensor parameters
 - Support for multiple simultaneous sensor connections
+- Run directly from GitHub using `uvx` without local cloning
 
 ## Requirements
 
 - Python 3.11 or higher
-- Ouster SDK 0.14.0 or higher
-- MCP library 1.7.1 or higher
-- uv package manager (recommended)
+- Ouster SDK 0.14.0 or higher (installed automatically when using `uvx`)
+- MCP library 1.7.1 or higher (installed automatically when using `uvx`)
+- uv package manager (which includes `uvx`)
 
 ## Installation
 
@@ -44,9 +45,31 @@ uv pip install -e ".[dev]"
 
 ### Starting the server
 
-The server supports two transport methods:
+The server can be run in several ways:
 
-#### 1. Standard I/O (stdio) transport:
+#### Option 1: Direct run with `uvx` (recommended, no local clone required)
+
+Run directly from GitHub using `uvx`:
+
+```bash
+# Start with default settings (stdio transport)
+uvx --from git+https://github.com/jmdaly/ouster-lidar-mcp-server.git -m main
+
+# Enable debug logging
+uvx --from git+https://github.com/jmdaly/ouster-lidar-mcp-server.git -m main --debug
+
+# Run with SSE transport (localhost:8080)
+uvx --from git+https://github.com/jmdaly/ouster-lidar-mcp-server.git -m main --sse
+
+# Specify host and port for SSE
+uvx --from git+https://github.com/jmdaly/ouster-lidar-mcp-server.git -m main --sse --host 0.0.0.0 --port 9000
+```
+
+#### Option 2: From a local clone
+
+If you have cloned the repository:
+
+##### 1. Standard I/O (stdio) transport:
 
 ```bash
 # Start with default settings
@@ -56,7 +79,7 @@ python main.py
 python main.py --debug
 ```
 
-#### 2. Server-Sent Events (SSE) transport over HTTP:
+##### 2. Server-Sent Events (SSE) transport over HTTP:
 
 ```bash
 # Start with default settings (localhost:8080)
@@ -67,6 +90,21 @@ python main.py --sse --host 0.0.0.0 --port 9000
 
 # Enable debug logging
 python main.py --sse --debug
+```
+
+#### Option 3: As an installed package
+
+If you've installed the package:
+
+```bash
+# Start with default settings
+ouster-mcp-server
+
+# Enable debug logging
+ouster-mcp-server --debug
+
+# Run with SSE transport
+ouster-mcp-server --sse
 ```
 
 ### Testing the server
@@ -91,9 +129,17 @@ python test_client.py --server-url http://localhost:8080 --sensor your-sensor-ho
 
 ### Using with MCP clients like Claude
 
-1. Start the server using stdio or SSE transport
+1. Start the server using one of the methods above (direct `uvx`, stdio, or SSE transport)
 2. Connect to the server using Claude Desktop or any other MCP-compatible client
 3. Use the provided tools to interact with Ouster Lidar sensors
+
+For the fastest setup with Claude Desktop:
+```bash
+# This runs the server directly from GitHub - no local clone needed
+uvx --from git+https://github.com/jmdaly/ouster-lidar-mcp-server.git -m main --sse
+```
+
+Then connect Claude Desktop to `http://localhost:8080`
 
 ## Available Tools
 

@@ -53,16 +53,16 @@ Run directly from GitHub using `uvx`:
 
 ```bash
 # Start with default settings (stdio transport)
-uvx --from git+https://github.com/jmdaly/ouster-lidar-mcp-server.git -m main
+uvx --from git+https://github.com/jmdaly/ouster-lidar-mcp-server.git ouster-mcp-server
 
 # Enable debug logging
-uvx --from git+https://github.com/jmdaly/ouster-lidar-mcp-server.git -m main --debug
+uvx --from git+https://github.com/jmdaly/ouster-lidar-mcp-server.git ouster-mcp-server --debug
 
 # Run with SSE transport (localhost:8080)
-uvx --from git+https://github.com/jmdaly/ouster-lidar-mcp-server.git -m main --sse
+uvx --from git+https://github.com/jmdaly/ouster-lidar-mcp-server.git ouster-mcp-server --sse
 
 # Specify host and port for SSE
-uvx --from git+https://github.com/jmdaly/ouster-lidar-mcp-server.git -m main --sse --host 0.0.0.0 --port 9000
+uvx --from git+https://github.com/jmdaly/ouster-lidar-mcp-server.git ouster-mcp-server --sse --host 0.0.0.0 --port 9000
 ```
 
 #### Option 2: From a local clone
@@ -136,7 +136,7 @@ python test_client.py --server-url http://localhost:8080 --sensor your-sensor-ho
 For the fastest setup with Claude Desktop:
 ```bash
 # This runs the server directly from GitHub - no local clone needed
-uvx --from git+https://github.com/jmdaly/ouster-lidar-mcp-server.git -m main --sse
+uvx --from git+https://github.com/jmdaly/ouster-lidar-mcp-server.git ouster-mcp-server --sse
 ```
 
 Then connect Claude Desktop to `http://localhost:8080`

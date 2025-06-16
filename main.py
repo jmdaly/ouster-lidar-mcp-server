@@ -30,8 +30,25 @@ def signal_handler(sig, frame):
     sig_name = signal.Signals(sig).name
     logger.info(f"Received {sig_name} signal")
     logger.info("Initiating graceful shutdown...")
+    
+    # Set the shutdown flag for potential use by other parts of the application
     shutdown_requested = True
-    # We don't call sys.exit() here to allow the program to clean up resources
+    
+    # Import cleanup function here to avoid circular imports
+    try:
+        # Give the application a short time to clean up
+        from app_setup import cleanup_resources
+        cleanup_resources()
+        logger.info("Resources cleaned up, exiting...")
+        
+        # Exit immediately without waiting for other handlers
+        os._exit(0)
+    except ImportError:
+        logger.warning("Could not import cleanup_resources, exiting directly")
+        os._exit(0)
+    except Exception as e:
+        logger.error(f"Error during cleanup: {str(e)}")
+        os._exit(1)
 
 def main():
     """
@@ -82,28 +99,40 @@ def main():
         if args.sse:
             logger.info(f"Server will listen on {args.host}:{args.port}")
             try:
-                # A cleaner approach would be to run a custom eventloop with graceful shutdown,
-                # but this would require customizing the MCP server. Instead, we rely on signal handling.
+                # Run MCP server with SSE transport
                 mcp.run(transport="sse")
             except KeyboardInterrupt:
                 logger.info("Server shutdown requested via keyboard interrupt")
+                cleanup_resources()
+                sys.exit(0)
             except asyncio.CancelledError:
                 logger.info("Async tasks cancelled during shutdown")
+                cleanup_resources()
+                sys.exit(0)
             except Exception as e:
                 logger.error(f"Server error: {str(e)}")
+                cleanup_resources()
+                sys.exit(1)
         else:
             logger.info("Server is using stdio transport")
             try:
+                # Run MCP server with stdio transport
                 mcp.run()
             except KeyboardInterrupt:
                 logger.info("Server shutdown requested via keyboard interrupt")
+                cleanup_resources()
+                sys.exit(0)
             except Exception as e:
                 logger.error(f"Server error: {str(e)}")
+                cleanup_resources()
+                sys.exit(1)
     finally:
+        # This should only execute if mcp.run() returns normally,
+        # which is unlikely in normal operation
         logger.info("MCP server is shutting down")
-        # Ensure resources are cleaned up
         cleanup_resources()
         logger.info("Server shutdown complete")
+        sys.exit(0)
 
 if __name__ == "__main__":
     try:

@@ -51,6 +51,13 @@ def cleanup_resources():
             visualization_processes.pop(hostname, None)
             
     logger.info("Cleanup completed")
+    
+    # Try to stop the MCP server if it's running
+    try:
+        mcp.stop()
+        logger.info("MCP server stopped")
+    except Exception as e:
+        logger.error(f"Error stopping MCP server: {e}")
 
 # Register the cleanup function to be called when the program exits
 atexit.register(cleanup_resources)

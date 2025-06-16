@@ -40,15 +40,13 @@ def signal_handler(sig, frame):
         from app_setup import cleanup_resources
         cleanup_resources()
         logger.info("Resources cleaned up, exiting...")
-        
-        # Exit immediately without waiting for other handlers
-        os._exit(0)
     except ImportError:
         logger.warning("Could not import cleanup_resources, exiting directly")
-        os._exit(0)
     except Exception as e:
         logger.error(f"Error during cleanup: {str(e)}")
-        os._exit(1)
+    
+    # Use os._exit to immediately terminate the process without further processing
+    os._exit(0)
 
 def main():
     """
@@ -135,10 +133,19 @@ def main():
         sys.exit(0)
 
 if __name__ == "__main__":
+    # Register a default signal handler early
+    signal.signal(signal.SIGINT, lambda s, f: (logger.info("Caught interrupt during startup. Exiting..."), os._exit(0)))
+    signal.signal(signal.SIGTERM, lambda s, f: (logger.info("Caught SIGTERM during startup. Exiting..."), os._exit(0)))
+    
     try:
         main()
     except KeyboardInterrupt:
-        logger.info("Program interrupted, cleaning up...")
+        logger.info("Program interrupted during startup, cleaning up...")
+        try:
+            from app_setup import cleanup_resources
+            cleanup_resources()
+        except ImportError:
+            pass
         sys.exit(0)
     except Exception as e:
         logger.error(f"Unhandled exception: {str(e)}", exc_info=True)
